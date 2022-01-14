@@ -12,8 +12,7 @@ import (
 
 	"github.com/gorilla/mux" // used to get the params from the route
 
-	"github.com/joho/godotenv" // package used to read the .env file
-	_ "github.com/lib/pq"      // postgres golang driver
+	_ "github.com/lib/pq" // postgres golang driver
 )
 
 // response format
