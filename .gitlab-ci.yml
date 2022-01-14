@@ -1,8 +1,6 @@
 
 stages:
-- test
 - build_image
-- push_image
 
 .merge_main:
   rules:
@@ -12,21 +10,28 @@ stages:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "merge_request_event"
 
+before_script:
+  - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
 
 
 build_image:
   stage: build_image
-  image: docker:git
+  image: docker:20
   rules:
     - !reference [.merge_main, rules]
-  script: "docker build -t registry.gitlab.com/leetcyber/leet-app:latest ."
+    - >
+      docker build
+      --pull
+      --build-arg http_proxy=$http_proxy
+      --build-arg https_proxy=$https_proxy
+      --build-arg no_proxy=$no_proxy
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      --label "org.opencontainers.image.title=$CI_PROJECT_TITLE"
+      --label "org.opencontainers.image.url=$CI_PROJECT_URL"
+      --label "org.opencontainers.image.created=$CI_JOB_STARTED_AT"
+      --label "org.opencontainers.image.revision=$CI_COMMIT_SHA"
+      --label "org.opencontainers.image.version=$CI_COMMIT_REF_NAME"
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
-
-push_image:
-  stage: push_image
-  image: docker:git
-  rules:
-    - !reference [.merge_main, rules]
-  script: 
-    - "docker login registry.gitlab.com -u patrickbreen -p ${CI_JOB_TOKEN}"
-    - "docker push registry.gitlab.com/leetcyber/leet-app:latest"
