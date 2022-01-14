@@ -1,6 +1,9 @@
 
 stages:
-- build_image
+  - build_image
+
+services:
+  - docker:dind
 
 .merge_main:
   rules:
