@@ -19,6 +19,7 @@ build_image:
   image: docker:20
   rules:
     - !reference [.merge_main, rules]
+  script:
     - >
       docker build
       --pull
