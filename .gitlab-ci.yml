@@ -28,5 +28,5 @@ push_image:
   rules:
     - !reference [.merge_main, rules]
   script: 
-    - "docker login registry.gitlab.com -u patrickbreen -p ${CI_JOB_TOKEN}
+    - "docker login registry.gitlab.com -u patrickbreen -p ${CI_JOB_TOKEN}"
     - "docker push registry.gitlab.com/leetcyber/leet-app:latest"
