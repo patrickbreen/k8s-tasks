@@ -19,4 +19,4 @@ FROM scratch
 # Copy our static executable.
 COPY --from=builder /app /app
 # Run the hello binary.
-ENTRYPOINT ["app"]
+ENTRYPOINT ["/app"]
