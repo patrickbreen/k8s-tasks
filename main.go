@@ -8,10 +8,12 @@ import (
 )
 
 func main() {
+	log.Println("App is started")
+	fmt.Println("fmt App is started")
 	r := router.Router()
 	// fs := http.FileServer(http.Dir("build"))
 	// http.Handle("/", fs)
-	fmt.Println("Starting server on the port 8080...")
+	log.Println("Starting server on the port 8080...")
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
