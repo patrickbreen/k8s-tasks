@@ -1,19 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"go-postgres/router"
+	Controller "leet/controllers"
+	"leet/db"
 	"log"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	log.Println("App is started")
-	fmt.Println("fmt App is started")
-	r := router.Router()
-	// fs := http.FileServer(http.Dir("build"))
-	// http.Handle("/", fs)
-	log.Println("Starting server on the port 8080...")
+	log.Println("Starting server..")
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	db.Init()
+
+	r := gin.Default()
+
+	v1 := r.Group("/api/v1")
+	{
+		tasks := v1.Group("/tasks")
+		{
+			tasks.GET("/", Controller.GetTasks)
+			tasks.POST("/", Controller.CreateTask)
+			tasks.PUT("/:id", Controller.UpdateTask)
+			tasks.DELETE("/:id", Controller.DeleteTask)
+		}
+	}
+
+	r.Run()
 }
