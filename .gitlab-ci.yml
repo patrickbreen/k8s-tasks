@@ -1,6 +1,9 @@
 
 stages:
-  - build_image
+  #  - formatting
+  - build
+    #- test
+  - merge_request_to_infra
 
 services:
   - docker:dind
@@ -13,16 +16,24 @@ services:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "merge_request_event"
 
-before_script:
-  - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+variables:
+  CI_DEBUG_TRACE: "true"
 
+  #check_formatting:
+  #  stage: formatting
+  #  image: ubuntu:20.04
+  #  rules:
+  #    - !reference [.merge_main, rules]
+  #  script:
+  #    - echo "todo"
 
 build_image:
-  stage: build_image
+  stage: build
   image: docker:20
   rules:
     - !reference [.merge_main, rules]
   script:
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - >
       docker build
       --pull
@@ -39,3 +50,26 @@ build_image:
       .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
+
+      #test:
+      #  stage: test
+      #  image: ubuntu:20.04
+      #  rules:
+      #    - !reference [.merge_main, rules]
+      #  script:
+      #    - echo "todo"
+
+merge_request_to_infra:
+  stage: merge_request_to_infra
+  image: ubuntu:20.04
+  rules:
+    - !reference [.merge_main, rules]
+  script:
+    - apt update
+    - apt install -y git
+    - apt update
+    - apt install -y curl
+    - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    - chmod 700 get_helm.sh
+    - ./get_helm.sh
+    - CI_COMMIT_SHA=$CI_COMMIT_SHA ./git/make_merge_request.sh
