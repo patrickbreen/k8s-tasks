@@ -62,7 +62,7 @@ sast:
     - docker run --rm -e "WORKSPACE=${PWD}" -v $PWD:/app shiftleft/scan scan --src /app/demo-app.tar -o /app/reports --type docker
   artifacts:
     paths:
-      - app/reports/*
+      - /app/reports/.sastscan.baseline
 
 merge_request_to_infra:
   stage: merge_request_to_infra
