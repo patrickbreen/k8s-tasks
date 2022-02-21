@@ -3,6 +3,7 @@ package task
 import (
 	"leet/db"
 	"leet/models"
+	"log"
 	"net/http"
 	"time"
 
@@ -42,7 +43,9 @@ func UpdateTask(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	c.BindJSON(&task)
+	if err := c.BindJSON(&task); err != nil {
+		log.Println(err.Error())
+	}
 	task.UpdatedAt = time.Now()
 	db.Save(&task)
 	c.JSON(http.StatusOK, &task)

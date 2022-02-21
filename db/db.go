@@ -32,7 +32,9 @@ func Init() {
 	}
 	log.Println("Database connected")
 
-	db.AutoMigrate(&models.Task{})
+	if err := db.AutoMigrate(&models.Task{}); err != nil {
+		log.Println(err.Error())
+	}
 }
 
 // GetDB ...
