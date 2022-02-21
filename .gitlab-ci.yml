@@ -31,7 +31,7 @@ build_image:
   stage: build
   image: docker:20
   rules:
-    - !reference [.merge_main, rules]
+    - when: always
   script:
     - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - >
@@ -53,10 +53,16 @@ build_image:
 
 sast:
   stage: test
+  image: docker:20
   rules:
-    - !reference [.merge_main, rules]
-  include:
-    - template: Security/SAST.gitlab-ci.yml
+    - when: always
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker save -o demo-app.tar $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker run --rm -e "WORKSPACE=${PWD}" -v $PWD:/app shiftleft/scan scan --src /app/demo-app.tar -o /app/reports --type docker
+  artifacts:
+    paths:
+      app/reports/*
 
 merge_request_to_infra:
   stage: merge_request_to_infra
