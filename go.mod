@@ -5,6 +5,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.3.0
 	github.com/penglongli/gin-metrics v0.1.9
+	github.com/prometheus/common v0.10.0 // indirect
 	github.com/satori/go.uuid v1.1.0
 )
 

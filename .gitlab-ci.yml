@@ -2,7 +2,7 @@
 stages:
   #  - formatting
   - build
-    #- test
+  - test
   - merge_request_to_infra
 
 services:
@@ -17,7 +17,7 @@ services:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "merge_request_event"
 
 variables:
-  CI_DEBUG_TRACE: "true"
+  CI_DEBUG_TRACE: "false"
 
   #check_formatting:
   #  stage: formatting
@@ -51,13 +51,12 @@ build_image:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
 
-      #test:
-      #  stage: test
-      #  image: ubuntu:20.04
-      #  rules:
-      #    - !reference [.merge_main, rules]
-      #  script:
-      #    - echo "todo"
+sast:
+  stage: test
+  rules:
+    - !reference [.merge_main, rules]
+  include:
+    - template: Security/SAST.gitlab-ci.yml
 
 merge_request_to_infra:
   stage: merge_request_to_infra
