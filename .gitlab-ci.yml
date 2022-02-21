@@ -60,9 +60,11 @@ sast:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker save -o demo-app.tar $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker run --rm -e "WORKSPACE=${PWD}" -v $PWD:/app shiftleft/scan scan --src /app/demo-app.tar -o /app/reports --type docker
+    - ls /app
   artifacts:
     paths:
-      - /app/reports/.sastscan.baseline
+      - reports/.sastscan.baseline
+      - reports/*
 
 merge_request_to_infra:
   stage: merge_request_to_infra
