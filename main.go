@@ -1,13 +1,18 @@
 package main
 
 import (
-	Controller "leet/controllers"
+	taskCtl "leet/controllers"
 	"leet/db"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"
 )
+
+func health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "healthy"})
+}
 
 func main() {
 	log.Println("Starting server..")
@@ -21,14 +26,17 @@ func main() {
 	m.SetDuration([]float64{0.1, 0.3, 1.2, 5, 10})
 	m.Use(r)
 
+	r.GET("/health", health)
+
+	r.Static("assets", "./assets")
 	v1 := r.Group("/api/v1")
 	{
 		tasks := v1.Group("/tasks")
 		{
-			tasks.GET("/", Controller.GetTasks)
-			tasks.POST("/", Controller.CreateTask)
-			tasks.PUT("/:id", Controller.UpdateTask)
-			tasks.DELETE("/:id", Controller.DeleteTask)
+			tasks.GET("/", taskCtl.GetTasks)
+			tasks.POST("/", taskCtl.CreateTask)
+			tasks.PUT("/:id", taskCtl.UpdateTask)
+			tasks.DELETE("/:id", taskCtl.DeleteTask)
 		}
 	}
 

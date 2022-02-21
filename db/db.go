@@ -35,6 +35,13 @@ func Init() {
 	if err := db.AutoMigrate(&models.Task{}); err != nil {
 		log.Println(err.Error())
 	}
+
+	// set connection limits
+	if dbObj, err := db.DB(); err == nil {
+		dbObj.SetMaxIdleConns(10)
+		dbObj.SetMaxOpenConns(100)
+	}
+
 }
 
 // GetDB ...
