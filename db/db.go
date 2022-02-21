@@ -42,7 +42,7 @@ func Init() {
 	db.AutoMigrate(&models.Task{})
 }
 
-//GetDB ...
+// GetDB ...
 func GetDB() *gorm.DB {
 	return db
 }
