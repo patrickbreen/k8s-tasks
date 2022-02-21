@@ -1,8 +1,9 @@
 
 stages:
   #  - formatting
-  - build
-  - test
+  - test_source
+  - build_container
+  - test_container
   - merge_request_to_infra
 
 services:
@@ -19,16 +20,25 @@ services:
 variables:
   CI_DEBUG_TRACE: "false"
 
-  #check_formatting:
-  #  stage: formatting
-  #  image: ubuntu:20.04
-  #  rules:
-  #    - !reference [.merge_main, rules]
-  #  script:
-  #    - echo "todo"
-
-build_image:
+test_source:
   stage: build
+  image: ubuntu:20.04
+  rules:
+    - when: always
+  script:
+    - apt update
+    # run tests
+    - apt install -y golang
+    - go test
+    # run gosec scan
+    - snap install gosec
+    - gosec ./... | tee gosec-output.txt
+  artifacts:
+    paths:
+      - gosec-output.txt
+
+build_container:
+  stage: build_container
   image: docker:20
   rules:
     - when: always
@@ -52,7 +62,7 @@ build_image:
 
 
 sast:
-  stage: test
+  stage: test_container
   image: docker:20
   rules:
     - when: always
@@ -60,10 +70,8 @@ sast:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker save -o demo-app.tar $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker run --rm -e "WORKSPACE=${PWD}" -v $PWD:/app shiftleft/scan scan --src /app/demo-app.tar -o /app/reports --type docker
-    - ls 
   artifacts:
     paths:
-      - reports/.sastscan.baseline
       - reports/*
 
 merge_request_to_infra:
