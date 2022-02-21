@@ -4,6 +4,7 @@ import (
 	"leet/db"
 	"leet/models"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +27,8 @@ func CreateTask(c *gin.Context) {
 		})
 		return
 	}
+
+	task.CreatedAt = time.Now()
 	db.Create(&task)
 	c.JSON(http.StatusOK, &task)
 }
@@ -40,6 +43,7 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 	c.BindJSON(&task)
+	task.UpdatedAt = time.Now()
 	db.Save(&task)
 	c.JSON(http.StatusOK, &task)
 }

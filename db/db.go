@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
@@ -23,21 +23,14 @@ func getEnv(key, fallback string) string {
 // Init creates a connection to mysql database and
 // migrates any new models
 func Init() {
-	dbinfo := os.Getenv("POSTGRES_URL")
+	dsn := os.Getenv("POSTGRES_URL")
 
-	db, err = gorm.Open("postgres", dbinfo)
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Println("Failed to connect to database")
 		panic(err)
 	}
 	log.Println("Database connected")
-
-	if !db.HasTable(&models.Task{}) {
-		err := db.CreateTable(&models.Task{})
-		if err != nil {
-			log.Println("Table already exists")
-		}
-	}
 
 	db.AutoMigrate(&models.Task{})
 }
@@ -45,8 +38,4 @@ func Init() {
 // GetDB ...
 func GetDB() *gorm.DB {
 	return db
-}
-
-func CloseDB() {
-	db.Close()
 }
