@@ -21,7 +21,7 @@ variables:
   CI_DEBUG_TRACE: "false"
 
 test_source:
-  stage: build
+  stage: test_source
   image: ubuntu:20.04
   rules:
     - when: always
