@@ -34,15 +34,7 @@ func main() {
 
 	r.Static("assets", "./assets")
 	v1 := r.Group("/api/v1")
-	{
-		tasksGroup := v1.Group("/tasks")
-		{
-			tasksGroup.GET("/", tasks.GetTasks)
-			tasksGroup.POST("/", tasks.CreateTask)
-			tasksGroup.PUT("/:id", tasks.UpdateTask)
-			tasksGroup.DELETE("/:id", tasks.DeleteTask)
-		}
-	}
+	tasks.TasksRegister(v1)
 
 	if err := r.Run(); err != nil {
 		log.Println("main error", err.Error())

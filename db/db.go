@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// globals hold the db reference.
 var db *gorm.DB
 var err error
 
@@ -45,7 +46,7 @@ func InitPostgres(connectionString string) {
 
 // sqlite is for testing or when you don't want to run postgress
 func InitTestDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	if err != nil {
 		log.Println("db err: (TestDBInit) ", err)
 	}
