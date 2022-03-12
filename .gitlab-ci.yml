@@ -36,10 +36,10 @@ test_source:
     - export PATH=$PATH:/usr/local/go/bin
     - go version
     - go install
-    - go test
+    - go test ./...
     # run gosec scan
-    - curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s v2.9.6
-    - ./bin/gosec ./... | tee gosec-output.txt
+    # - curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s v2.9.6
+    # - ./bin/gosec ./... | tee gosec-output.txt
   artifacts:
     paths:
       - gosec-output.txt
