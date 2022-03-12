@@ -1,11 +1,13 @@
 package tasks
 
 import (
+	"fmt"
 	"leet/models"
 	"leet/util"
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +21,7 @@ func TasksRegister(group *gin.RouterGroup) {
 }
 
 func GetTasks(c *gin.Context) {
-	util.Log.Info().Msg("GetTasks " + c.ClientIP())
+	util.Log.Info().Msg(fmt.Sprintf("%s, GetTasks", requestid.Get(c)))
 
 	var tasks []models.Task
 	db := util.GetDB()
@@ -28,12 +30,12 @@ func GetTasks(c *gin.Context) {
 }
 
 func CreateTask(c *gin.Context) {
-	util.Log.Info().Msg("CreateTask " + c.ClientIP())
+	util.Log.Info().Msg(fmt.Sprintf("%s, CreateTask", requestid.Get(c)))
 	var task models.Task
 	var db = util.GetDB()
 
 	if err := c.BindJSON(&task); err != nil {
-		util.Log.Error().Msg("CreateTask 400 BindJSON " + c.ClientIP())
+		util.Log.Error().Msg(fmt.Sprintf("%s, CreateTask 400 BindJSON", requestid.Get(c)))
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -45,18 +47,18 @@ func CreateTask(c *gin.Context) {
 }
 
 func UpdateTask(c *gin.Context) {
-	util.Log.Info().Msg("UpdateTask " + c.ClientIP())
+	util.Log.Info().Msg(fmt.Sprintf("%s, UpdateTask", requestid.Get(c)))
 	id := c.Param("id")
 	var task models.Task
 
 	db := util.GetDB()
 	if err := db.Where("id = ?", id).First(&task).Error; err != nil {
-		util.Log.Error().Msg("CreateTask 400 FindInDB " + c.ClientIP())
+		util.Log.Error().Msg(fmt.Sprintf("%s, UpdateTask 403 DB lookup", requestid.Get(c)))
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	if err := c.BindJSON(&task); err != nil {
-		util.Log.Error().Msg("CreateTask 500 BindJSON from DB Obj " + c.ClientIP())
+		util.Log.Error().Msg(fmt.Sprintf("%s, UpdateTask 500 BindJSON", requestid.Get(c)))
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -66,13 +68,13 @@ func UpdateTask(c *gin.Context) {
 }
 
 func DeleteTask(c *gin.Context) {
-	util.Log.Info().Msg("DeleteTask " + c.ClientIP())
+	util.Log.Info().Msg(fmt.Sprintf("%s, DeleteTask", requestid.Get(c)))
 	id := c.Param("id")
 	var task models.Task
 	db := util.GetDB()
 
 	if err := db.Where("id = ?", id).First(&task).Error; err != nil {
-		util.Log.Error().Msg("DeleteTask 400 FindInDB " + c.ClientIP())
+		util.Log.Error().Msg(fmt.Sprintf("%s, DeleteTask 403 DB lookup", requestid.Get(c)))
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}

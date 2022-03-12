@@ -1,10 +1,12 @@
 module leet
 
 require (
+	github.com/gin-contrib/requestid v0.0.3
 	github.com/gin-gonic/gin v1.7.7
+	github.com/google/uuid v1.2.0
 	github.com/lib/pq v1.10.4
 	github.com/penglongli/gin-metrics v0.1.10
-	github.com/rs/zerolog v1.15.0
+	github.com/rs/zerolog v1.23.0
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/postgres v1.3.1
 	gorm.io/driver/sqlite v1.3.1
@@ -53,4 +55,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
-go 1.18
+go 1.17

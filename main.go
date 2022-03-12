@@ -1,29 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"leet/tasks"
 	"leet/util"
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"
 )
 
 func health(c *gin.Context) {
-	util.Log.Info().Msg("Checked health")
+	util.Log.Info().Msg(fmt.Sprintf("id:%s, health", requestid.Get(c)))
 	c.JSON(http.StatusOK, gin.H{"message": "healthy"})
 }
 
 func main() {
-	util.Log = util.InitLogger()
+	r := gin.Default()
+	util.InitLogger(r)
 	util.Log.Info().Msg("Starting server..")
 
 	defer util.DBFree()
 	connectionString := os.Getenv("POSTGRES_URL")
 	util.InitPostgres(connectionString)
-
-	r := gin.Default()
 
 	// gin metrics
 	m := ginmetrics.GetMonitor()

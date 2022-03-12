@@ -55,13 +55,17 @@ func InitTestDB() *gorm.DB {
 	return db
 }
 
-func DBFree() error {
+func DBFree() {
 	sqlDB, err := db.DB()
-	sqlDB.Close()
 	if err != nil {
+		Log.Info().Msg("Error getting DB")
 		panic(err)
 	}
-	return err
+	err = sqlDB.Close()
+	if err != nil {
+		Log.Info().Msg("Error closing DB")
+		panic(err)
+	}
 }
 
 // GetDB object reference
