@@ -1,8 +1,8 @@
 package main
 
 import (
-	taskCtl "leet/controllers"
 	"leet/db"
+	"leet/tasks"
 	"log"
 	"net/http"
 	"os"
@@ -35,12 +35,12 @@ func main() {
 	r.Static("assets", "./assets")
 	v1 := r.Group("/api/v1")
 	{
-		tasks := v1.Group("/tasks")
+		tasksGroup := v1.Group("/tasks")
 		{
-			tasks.GET("/", taskCtl.GetTasks)
-			tasks.POST("/", taskCtl.CreateTask)
-			tasks.PUT("/:id", taskCtl.UpdateTask)
-			tasks.DELETE("/:id", taskCtl.DeleteTask)
+			tasksGroup.GET("/", tasks.GetTasks)
+			tasksGroup.POST("/", tasks.CreateTask)
+			tasksGroup.PUT("/:id", tasks.UpdateTask)
+			tasksGroup.DELETE("/:id", tasks.DeleteTask)
 		}
 	}
 
