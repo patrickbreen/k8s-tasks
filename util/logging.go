@@ -17,6 +17,9 @@ var Log zerolog.Logger
 
 func InitLogger(r *gin.Engine) {
 	// make my own logger
+	// Note I don't set the hostname/container name/environment anywhere in the logs
+	// Theoretically you can search and sort on this information already in kubernetes log
+	// metadata, and I'm intending this app to be run on kubernetes
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if gin.IsDebugging() {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
