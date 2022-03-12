@@ -1,9 +1,8 @@
 package main
 
 import (
-	"leet/db"
 	"leet/tasks"
-	"log"
+	"leet/util"
 	"net/http"
 	"os"
 
@@ -12,14 +11,17 @@ import (
 )
 
 func health(c *gin.Context) {
+	util.Log.Info().Msg("Checked health")
 	c.JSON(http.StatusOK, gin.H{"message": "healthy"})
 }
 
 func main() {
-	log.Println("Starting server..")
+	util.Log = util.InitLogger()
+	util.Log.Info().Msg("Starting server..")
 
+	defer util.DBFree()
 	connectionString := os.Getenv("POSTGRES_URL")
-	db.InitPostgres(connectionString)
+	util.InitPostgres(connectionString)
 
 	r := gin.Default()
 
@@ -37,6 +39,6 @@ func main() {
 	tasks.TasksRegister(v1)
 
 	if err := r.Run(); err != nil {
-		log.Println("main error", err.Error())
+		util.Log.Fatal().Msg("main error: " + err.Error())
 	}
 }

@@ -1,9 +1,8 @@
 package tasks
 
 import (
-	"leet/db"
 	"leet/models"
-	"log"
+	"leet/util"
 	"net/http"
 	"time"
 
@@ -20,18 +19,21 @@ func TasksRegister(group *gin.RouterGroup) {
 }
 
 func GetTasks(c *gin.Context) {
+	util.Log.Info().Msg("GetTasks " + c.ClientIP())
 
 	var tasks []models.Task
-	db := db.GetDB()
+	db := util.GetDB()
 	db.Find(&tasks)
 	c.JSON(200, tasks)
 }
 
 func CreateTask(c *gin.Context) {
+	util.Log.Info().Msg("CreateTask " + c.ClientIP())
 	var task models.Task
-	var db = db.GetDB()
+	var db = util.GetDB()
 
 	if err := c.BindJSON(&task); err != nil {
+		util.Log.Error().Msg("CreateTask 400 BindJSON " + c.ClientIP())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -43,16 +45,20 @@ func CreateTask(c *gin.Context) {
 }
 
 func UpdateTask(c *gin.Context) {
+	util.Log.Info().Msg("UpdateTask " + c.ClientIP())
 	id := c.Param("id")
 	var task models.Task
 
-	db := db.GetDB()
+	db := util.GetDB()
 	if err := db.Where("id = ?", id).First(&task).Error; err != nil {
+		util.Log.Error().Msg("CreateTask 400 FindInDB " + c.ClientIP())
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	if err := c.BindJSON(&task); err != nil {
-		log.Println(err.Error())
+		util.Log.Error().Msg("CreateTask 500 BindJSON from DB Obj " + c.ClientIP())
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 	task.UpdatedAt = time.Now()
 	db.Save(&task)
@@ -60,11 +66,13 @@ func UpdateTask(c *gin.Context) {
 }
 
 func DeleteTask(c *gin.Context) {
+	util.Log.Info().Msg("DeleteTask " + c.ClientIP())
 	id := c.Param("id")
 	var task models.Task
-	db := db.GetDB()
+	db := util.GetDB()
 
 	if err := db.Where("id = ?", id).First(&task).Error; err != nil {
+		util.Log.Error().Msg("DeleteTask 400 FindInDB " + c.ClientIP())
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}

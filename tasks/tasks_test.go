@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"leet/db"
 	"leet/models"
+	"leet/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +17,7 @@ import (
 
 func TestTaskModel(t *testing.T) {
 	// get test db
-	testDB := db.InitTestDB()
+	testDB := util.InitTestDB()
 	asserts := assert.New(t)
 
 	// migrate
@@ -56,7 +56,7 @@ func TestTaskModel(t *testing.T) {
 	asserts.Equal(0, len(tasks))
 
 	// close db
-	db.DBFree(testDB)
+	util.DBFree()
 
 }
 
@@ -174,7 +174,7 @@ func ParseTasks(s string) ([]models.Task, error) {
 
 func TestTaskRequests(t *testing.T) {
 	// get test db - also just sets the global db reference
-	testDB := db.InitTestDB()
+	testDB := util.InitTestDB()
 	asserts := assert.New(t)
 
 	// migrate
@@ -198,6 +198,5 @@ func TestTaskRequests(t *testing.T) {
 	}
 
 	// close db
-	db.DBFree(testDB)
-
+	util.DBFree()
 }

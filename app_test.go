@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-// example test
 func calculate() bool {
 	return true
 }

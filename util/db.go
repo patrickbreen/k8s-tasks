@@ -1,8 +1,7 @@
-package db
+package util
 
 import (
 	"leet/models"
-	"log"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -27,13 +26,12 @@ func InitPostgres(connectionString string) {
 
 	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
-		log.Println("db err: (InitPostgres) ", err)
 		panic(err)
 	}
-	log.Println("Database connected")
+	Log.Info().Msg("Database connected")
 
 	if err := db.AutoMigrate(&models.Task{}); err != nil {
-		log.Println(err.Error())
+		Log.Info().Msg(err.Error())
 	}
 
 	// set connection limits
@@ -48,7 +46,7 @@ func InitPostgres(connectionString string) {
 func InitTestDB() *gorm.DB {
 	db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	if err != nil {
-		log.Println("db err: (TestDBInit) ", err)
+		panic(err)
 	}
 	if dbObj, err := db.DB(); err == nil {
 		dbObj.SetMaxIdleConns(10)
@@ -57,11 +55,11 @@ func InitTestDB() *gorm.DB {
 	return db
 }
 
-func DBFree(db *gorm.DB) error {
+func DBFree() error {
 	sqlDB, err := db.DB()
 	sqlDB.Close()
 	if err != nil {
-		log.Println("db err: (DBFree) ", err)
+		panic(err)
 	}
 	return err
 }

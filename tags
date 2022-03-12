@@ -1,0 +1,47 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/leet/workplace/demo/app/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/32b8e90a/
+Completed	models/task.go	/^	Completed bool      `json:"completed"`$/;"	m	struct:models.Task	typeref:typename:bool
+CreateTask	tasks/tasks.go	/^func CreateTask(c *gin.Context) {$/;"	f	package:tasks
+CreatedAt	models/task.go	/^	CreatedAt time.Time `json:"created_at"`$/;"	m	struct:models.Task	typeref:typename:time.Time
+DBFree	db/db.go	/^func DBFree(db *gorm.DB) error {$/;"	f	package:db	typeref:typename:error
+DeleteTask	tasks/tasks.go	/^func DeleteTask(c *gin.Context) {$/;"	f	package:tasks
+GetDB	db/db.go	/^func GetDB() *gorm.DB {$/;"	f	package:db	typeref:typename:*gorm.DB
+GetTasks	tasks/tasks.go	/^func GetTasks(c *gin.Context) {$/;"	f	package:tasks
+ID	models/task.go	/^	ID        uint      `gorm:primaryKey json:"id"`$/;"	m	struct:models.Task	typeref:typename:uint
+InitPostgres	db/db.go	/^func InitPostgres(connectionString string) {$/;"	f	package:db
+InitTestDB	db/db.go	/^func InitTestDB() *gorm.DB {$/;"	f	package:db	typeref:typename:*gorm.DB
+ParseTask	tasks/tasks_test.go	/^func ParseTask(s string) (models.Task, error) {$/;"	f	package:tasks	typeref:typename:(models.Task, error)
+ParseTasks	tasks/tasks_test.go	/^func ParseTasks(s string) ([]models.Task, error) {$/;"	f	package:tasks	typeref:typename:([]models.Task, error)
+Task	models/task.go	/^type Task struct {$/;"	s	package:models
+TaskRequestWorkflow	tasks/tasks_test.go	/^var TaskRequestWorkflow = []struct {$/;"	v	package:tasks
+TasksRegister	tasks/tasks.go	/^func TasksRegister(group *gin.RouterGroup) {$/;"	f	package:tasks
+TestTaskModel	tasks/tasks_test.go	/^func TestTaskModel(t *testing.T) {$/;"	f	package:tasks
+TestTaskRequests	tasks/tasks_test.go	/^func TestTaskRequests(t *testing.T) {$/;"	f	package:tasks
+TestWithTimeOut	app_test.go	/^func TestWithTimeOut(t *testing.T) {$/;"	f	package:main
+Title	models/task.go	/^	Title     string    `json:"title" binding:"required"`$/;"	m	struct:models.Task	typeref:typename:string
+UpdateTask	tasks/tasks.go	/^func UpdateTask(c *gin.Context) {$/;"	f	package:tasks
+UpdatedAt	models/task.go	/^	UpdatedAt time.Time `json:"updated_at"`$/;"	m	struct:models.Task	typeref:typename:time.Time
+calculate	app_test.go	/^func calculate() bool {$/;"	f	package:main	typeref:typename:bool
+db	db/db.go	/^package db$/;"	p
+db	db/db.go	/^var db *gorm.DB$/;"	v	package:db	typeref:typename:*gorm.DB
+err	db/db.go	/^var err error$/;"	v	package:db	typeref:typename:error
+getEnv	db/db.go	/^func getEnv(key, fallback string) string {$/;"	f	package:db	typeref:typename:string
+good example	README.md	/^# good example$/;"	c
+health	main.go	/^func health(c *gin.Context) {$/;"	f	package:main
+main	app_test.go	/^package main$/;"	p
+main	main.go	/^func main() {$/;"	f	package:main
+main	main.go	/^package main$/;"	p
+models	models/task.go	/^package models$/;"	p
+portforward postgres from the cluster to use in localhost dev/testing	README.md	/^# portforward postgres from the cluster to use in localhost dev\/testing$/;"	c
+tasks	tasks/tasks.go	/^package tasks$/;"	p
+tasks	tasks/tasks_test.go	/^package tasks$/;"	p
+test_fmt	git/pre-commit	/^test_fmt() {$/;"	f

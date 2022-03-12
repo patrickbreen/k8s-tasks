@@ -4,6 +4,7 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/lib/pq v1.10.4
 	github.com/penglongli/gin-metrics v0.1.10
+	github.com/rs/zerolog v1.15.0
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/postgres v1.3.1
 	gorm.io/driver/sqlite v1.3.1
