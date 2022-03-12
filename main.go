@@ -5,6 +5,7 @@ import (
 	"leet/db"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/penglongli/gin-metrics/ginmetrics"
@@ -17,9 +18,12 @@ func health(c *gin.Context) {
 func main() {
 	log.Println("Starting server..")
 
-	db.Init()
+	connectionString := os.Getenv("POSTGRES_URL")
+	db.InitPostgres(connectionString)
 
 	r := gin.Default()
+
+	// gin metrics
 	m := ginmetrics.GetMonitor()
 	m.SetMetricPath("/metrics")
 	m.SetSlowTime(10)
@@ -41,6 +45,6 @@ func main() {
 	}
 
 	if err := r.Run(); err != nil {
-		log.Println(err.Error())
+		log.Println("main error", err.Error())
 	}
 }

@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -20,14 +21,12 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-// Init creates a connection to mysql database and
-// migrates any new models
-func Init() {
-	dsn := os.Getenv("POSTGRES_URL")
+// creates a connection to postgres database and migrates any new models
+func InitPostgres(connectionString string) {
 
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
-		log.Println("Failed to connect to database")
+		log.Println("db err: (InitPostgres) ", err)
 		panic(err)
 	}
 	log.Println("Database connected")
@@ -44,7 +43,29 @@ func Init() {
 
 }
 
-// GetDB ...
+// sqlite is for testing or when you don't want to run postgress
+func InitTestDB() *gorm.DB {
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	if err != nil {
+		log.Println("db err: (TestDBInit) ", err)
+	}
+	if dbObj, err := db.DB(); err == nil {
+		dbObj.SetMaxIdleConns(10)
+		//dbObj.LogMode(true)
+	}
+	return db
+}
+
+func DBFree(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	sqlDB.Close()
+	if err != nil {
+		log.Println("db err: (DBFree) ", err)
+	}
+	return err
+}
+
+// GetDB object reference
 func GetDB() *gorm.DB {
 	return db
 }

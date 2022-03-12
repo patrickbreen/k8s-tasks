@@ -1,2 +1,2 @@
-go test
+go test ./... -v
 gosec ./...
