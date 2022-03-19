@@ -91,9 +91,7 @@ trivy:
   rules:
     - when: always
   script:
-    - echo "Running trivy"
-    - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --output trivy-report.txt
-    - echo "Finished trivy"
+    - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --output trivy-report.txt --no-progress
   artifacts:
     reports:
       container_scanning: tricy-report.txt
