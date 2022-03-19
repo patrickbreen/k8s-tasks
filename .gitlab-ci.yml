@@ -81,6 +81,14 @@ sast:
     paths:
       - reports/*
 
+trivy:
+  stage: test_container
+  image: aquasec/trivy:0.24.4
+  rules:
+    - when: always
+  script:
+    - trivy image registry.gitlab.com/leetcyber/demo-k8s
+
 merge_request_to_infra:
   stage: merge_request_to_infra
   image: ubuntu:20.04
