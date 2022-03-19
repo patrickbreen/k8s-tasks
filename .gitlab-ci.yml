@@ -94,7 +94,7 @@ trivy:
     - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --output trivy-report.txt --no-progress
   artifacts:
     reports:
-      container_scanning: tricy-report.txt
+      container_scanning: trivy-report.txt
 
 merge_request_to_infra:
   stage: merge_request_to_infra
