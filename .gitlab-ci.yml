@@ -87,7 +87,9 @@ trivy:
   rules:
     - when: always
   script:
-    - trivy image registry.gitlab.com/leetcyber/demo-k8s
+    - echo "Running trivy"
+    - image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - echo "Finished trivy"
 
 merge_request_to_infra:
   stage: merge_request_to_infra
