@@ -83,13 +83,20 @@ sast:
 
 trivy:
   stage: test_container
-  image: aquasec/trivy:0.24.4
+  image:
+    name: aquasec/trivy:0.24.4
+    entrypoint: [""]
+  services:
+    - docker:dind
   rules:
     - when: always
   script:
     - echo "Running trivy"
-    - image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --output trivy-report.txt
     - echo "Finished trivy"
+  artifacts:
+    reports:
+      container_scanning: tricy-report.txt
 
 merge_request_to_infra:
   stage: merge_request_to_infra
