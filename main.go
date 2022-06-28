@@ -27,7 +27,7 @@ func main() {
 	fmt.Println("connectionString: ", connectionString)
 	if connectionString == "" {
 		postgresPassword := os.Getenv("POSTGRES_PASSWORD")
-		connectionString = fmt.Sprintf("tasks-postgres-master.tasks.svc.cluster.local port=5432 user=app-user dbname=tasks password=%s sslmode=disable", postgresPassword)
+		connectionString = fmt.Sprintf("host=tasks-postgres-master.tasks.svc.cluster.local port=5432 user=app-user dbname=tasks password=%s sslmode=disable", postgresPassword)
 	}
 	util.InitPostgres(connectionString)
 
