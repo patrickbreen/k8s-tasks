@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"leet/models"
 	"os"
 
@@ -24,6 +25,7 @@ func getEnv(key, fallback string) string {
 // creates a connection to postgres database and migrates any new models
 func InitPostgres(connectionString string) {
 
+	fmt.Println("int postgres connectionString: ", connectionString)
 	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		panic(err)
