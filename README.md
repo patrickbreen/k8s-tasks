@@ -16,12 +16,17 @@ go get .
 # build
 go build
 
+# build canary
+cd canary
+go build
+
 # run
 ./leet
 ```
 
-# good example
-https://github.com/gothinkster/golang-gin-realworld-example-app
-
-# Logging
-errors should be auto logged!
+### TODO:
+1. Need to get canary working (it doesn't like the self-signed certs)
+2. Integration tests just set up a local server, and call the canary client on it, and verify no panics
+3. Canary runs every 30s and exports prometheus metrics on port 9000
+4. Need to get tasks by id
+5. Need to get a notion of "users/accounts" and have the canary account only see its own data and clean up after itself
