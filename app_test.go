@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -60,118 +61,6 @@ func TestTaskModel(t *testing.T) {
 
 }
 
-// name, method, url, body, expectedStatus, expectedBody
-var TaskRequestWorkflow = []struct {
-	name          string
-	method        string
-	url           string
-	body          string
-	assertCorrect func(*testing.T, int, string)
-}{
-	{
-		"check no tasks exist",
-		"GET",
-		"/api/v1/tasks/",
-		"",
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(status, http.StatusOK)
-			tasks, err := ParseTasks(body)
-			asserts.NoError(err)
-			asserts.Equal(0, len(tasks))
-		},
-	},
-	{
-		"create",
-		"POST",
-		"/api/v1/tasks/",
-		`{"Title": "test", "Completed": false}`,
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(http.StatusOK, status)
-			task, err := ParseTask(body)
-			asserts.NoError(err)
-			asserts.Equal("test", task.Title)
-		},
-	},
-	{
-		"get task just created from db",
-		"GET",
-		"/api/v1/tasks/",
-		"",
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(status, http.StatusOK)
-			tasks, err := ParseTasks(body)
-			asserts.NoError(err)
-			asserts.Equal(1, len(tasks))
-			asserts.Equal("test", tasks[0].Title)
-		},
-	},
-	{
-		"update",
-		"PUT",
-		"/api/v1/tasks/?id=1",
-		`{"title": "changedit", "completed": false}`,
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(status, http.StatusOK)
-			task, err := ParseTask(body)
-			asserts.NoError(err)
-			asserts.Equal("changedit", task.Title)
-		},
-	},
-	{
-		"get tasks just updated",
-		"GET",
-		"/api/v1/tasks/",
-		``,
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(status, http.StatusOK)
-			tasks, err := ParseTasks(body)
-			asserts.NoError(err)
-			asserts.Equal(1, len(tasks))
-			asserts.Equal("changedit", tasks[0].Title)
-		},
-	},
-	{
-		"delete task",
-		"DELETE",
-		"/api/v1/tasks/?id=1",
-		``,
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(status, http.StatusOK)
-		},
-	},
-	{
-		"verify no tasks left",
-		"GET",
-		"/api/v1/tasks/",
-		``,
-		func(t *testing.T, status int, body string) {
-			asserts := assert.New(t)
-			asserts.Equal(status, http.StatusOK)
-			tasks, err := ParseTasks(body)
-			asserts.NoError(err)
-			asserts.Equal(0, len(tasks))
-		},
-	},
-}
-
-func ParseTask(s string) (models.Task, error) {
-	var task models.Task
-	err := json.Unmarshal([]byte(s), &task)
-	return task, err
-}
-
-func ParseTasks(s string) ([]models.Task, error) {
-	var tasks []models.Task
-	err := json.Unmarshal([]byte(s), &tasks)
-	return tasks, err
-}
-
 func TestTaskRequests(t *testing.T) {
 	// get test db - also just sets the global db reference
 	testDB := util.InitTestDB()
@@ -188,18 +77,93 @@ func TestTaskRequests(t *testing.T) {
 	go http.ListenAndServe(":9000", promhttp.Handler())
 	go http.ListenAndServe(":8080", mux)
 
-	for _, workflow := range TaskRequestWorkflow {
-		request, err := http.NewRequest(workflow.method,
-			"http://localhost:8080"+workflow.url,
-			bytes.NewBufferString(workflow.body))
-		request.Header.Set("Content-Type", "application/json")
-		asserts.NoError(err)
+	serverDomain := "http://localhost:8080"
 
-		c := &http.Client{}
-		response, err := c.Do(request)
-		asserts.NoError(err)
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(response.Body)
-		workflow.assertCorrect(t, response.StatusCode, buf.String())
+	// create
+	request, err := http.NewRequest("POST",
+		serverDomain+"/api/v1/tasks/",
+		bytes.NewBufferString(`{"Title": "test", "Completed": false}`))
+	request.Header.Set("Content-Type", "application/json")
+	asserts.NoError(err)
+	c := &http.Client{}
+	response, err := c.Do(request)
+	asserts.NoError(err)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(response.Body)
+	asserts.Equal(http.StatusOK, response.StatusCode)
+	var task models.Task
+	err = json.Unmarshal(buf.Bytes(), &task)
+	asserts.NoError(err)
+	asserts.Equal("test", task.Title)
+
+	// verify get, TODO this should be a lookup by ID
+	request, err = http.NewRequest("GET",
+		serverDomain+"/api/v1/tasks/",
+		bytes.NewBufferString(``))
+	request.Header.Set("Content-Type", "application/json")
+	asserts.NoError(err)
+	response, err = c.Do(request)
+	asserts.NoError(err)
+	buf = new(bytes.Buffer)
+	buf.ReadFrom(response.Body)
+	asserts.Equal(http.StatusOK, response.StatusCode)
+	var tasks []models.Task
+	err = json.Unmarshal(buf.Bytes(), &tasks)
+	asserts.NoError(err)
+	foundTask := false
+	for _, returnedTask := range tasks {
+		if returnedTask.ID == task.ID {
+			foundTask = true
+		}
 	}
+	asserts.Equal(true, foundTask)
+
+	// update
+	// id := task.ID
+	request, err = http.NewRequest("PUT",
+		serverDomain+"/api/v1/tasks/?id="+fmt.Sprint(task.ID),
+		bytes.NewBufferString(`{"title": "changedit", "completed": false}`))
+	request.Header.Set("Content-Type", "application/json")
+	asserts.NoError(err)
+	response, err = c.Do(request)
+	asserts.NoError(err)
+	buf = new(bytes.Buffer)
+	buf.ReadFrom(response.Body)
+	asserts.Equal(http.StatusOK, response.StatusCode)
+	err = json.Unmarshal(buf.Bytes(), &task)
+	asserts.NoError(err)
+	asserts.Equal("changedit", task.Title)
+
+	// delete
+	request, err = http.NewRequest("DELETE",
+		serverDomain+"/api/v1/tasks/?id="+fmt.Sprint(task.ID),
+		bytes.NewBufferString(``))
+	request.Header.Set("Content-Type", "application/json")
+	asserts.NoError(err)
+	response, err = c.Do(request)
+	asserts.NoError(err)
+	buf = new(bytes.Buffer)
+	buf.ReadFrom(response.Body)
+	asserts.Equal(http.StatusOK, response.StatusCode)
+
+	// verify no get, TODO this should be a lookup by ID
+	request, err = http.NewRequest("GET",
+		serverDomain+"/api/v1/tasks/",
+		bytes.NewBufferString(``))
+	request.Header.Set("Content-Type", "application/json")
+	asserts.NoError(err)
+	response, err = c.Do(request)
+	asserts.NoError(err)
+	buf = new(bytes.Buffer)
+	buf.ReadFrom(response.Body)
+	asserts.Equal(http.StatusOK, response.StatusCode)
+	err = json.Unmarshal(buf.Bytes(), &tasks)
+	asserts.NoError(err)
+	foundTask = false
+	for _, returnedTask := range tasks {
+		if returnedTask.ID == task.ID {
+			foundTask = true
+		}
+	}
+	asserts.Equal(false, foundTask)
 }
