@@ -1,50 +1,110 @@
 package main
 
 import (
-	"fmt"
-	"leet/tasks"
 	"leet/util"
 	"net/http"
-	"os"
 
-	"github.com/gin-contrib/requestid"
-	"github.com/gin-gonic/gin"
-	"github.com/penglongli/gin-metrics/ginmetrics"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog/log"
 )
 
-func health(c *gin.Context) {
-	util.Log.Info().Msg(fmt.Sprintf("id:%s, health", requestid.Get(c)))
-	c.JSON(http.StatusOK, gin.H{"message": "healthy"})
-}
+//func health(w http.ResponseWriter, req *http.Request) {
+//	log.Info().Msg(fmt.Sprintf("log health check"))
+//	fmt.Fprintf(w, "healthy\n")
+//}
+//
+//var totalRequests = prometheus.NewCounterVec(
+//	prometheus.CounterOpts{
+//		Name: "my_http_requests_total",
+//		Help: "Counter of requests.",
+//	},
+//	[]string{"path", "status_code"},
+//)
+//
+//var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+//	Name: "my_http_response_time_seconds",
+//	Help: "Duration of HTTP requests.",
+//}, []string{"path", "status_code"})
+//
+//var inFlightRequests = prometheus.NewGaugeVec(
+//	prometheus.GaugeOpts{
+//		Name: "my_http_requests_in_flight",
+//		Help: "Gauge of in flight requests.",
+//	},
+//	[]string{"path"},
+//)
+//
+//type WrappedResponseWriter struct {
+//	http.ResponseWriter
+//	StatusCode int
+//}
+//
+//func NewWrappedResponseWriter(w http.ResponseWriter) *WrappedResponseWriter {
+//	return &WrappedResponseWriter{w, http.StatusOK}
+//}
+//
+//func (wrw *WrappedResponseWriter) WriteHeader(code int) {
+//	wrw.StatusCode = code
+//	wrw.ResponseWriter.WriteHeader(code)
+//}
+//
+//type MyWrappedHandler struct {
+//	Handler http.Handler
+//}
+//
+//// handle logging, metrics and auth
+//func (m *MyWrappedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+//	start := time.Now()
+//	inFlightRequests.WithLabelValues(r.URL.Path).Inc()
+//	wrw := NewWrappedResponseWriter(w)
+//	m.Handler.ServeHTTP(wrw, r)
+//	status_code := fmt.Sprintf("%d", wrw.StatusCode)
+//	totalRequests.WithLabelValues(r.URL.Path, status_code).Add(1)
+//	response_time := time.Since(start)
+//	httpDuration.WithLabelValues(r.URL.Path, status_code).Observe(response_time.Seconds())
+//	inFlightRequests.WithLabelValues(r.URL.Path).Dec()
+//
+//	// TODO, add any panic stack traces with line numbers
+//	log.Info().
+//		Str("method", r.Method).
+//		Str("path", r.URL.Path).
+//		Str("response_time", response_time.String()).
+//		Str("source_ip", r.RemoteAddr).
+//		Str("referer", r.Referer()).
+//		Str("response_code", status_code).Msg("")
+//}
+//
+//func NewMyWrappedHandler(handlerToWrap http.Handler) *MyWrappedHandler {
+//	return &MyWrappedHandler{handlerToWrap}
+//}
+//
+//func InitPrometheus() {
+//	prometheus.Register(totalRequests)
+//	prometheus.Register(httpDuration)
+//	prometheus.Register(inFlightRequests)
+//}
+//
+//func InitAppServer() *MyWrappedHandler {
+//	// register http routes
+//	mux := http.NewServeMux()
+//	mux.HandleFunc("/health", health)
+//	fileserver := http.FileServer(http.Dir("./assets"))
+//	mux.Handle("/assets", fileserver)
+//	mux.HandleFunc("/api/v1/tasks/", tasks.TasksHandler)
+//	// middleware
+//	return NewMyWrappedHandler(mux)
+//}
 
 func main() {
-	r := gin.Default()
-	util.InitLogger(r)
-	util.Log.Info().Msg("Starting server..")
+	log.Info().Msg("Initializing server..")
 
+	// init postgres and prometheus
 	defer util.DBFree()
-	connectionString := os.Getenv("POSTGRES_CONNECTION")
-	fmt.Println("connectionString: ", connectionString)
-	if connectionString == "" {
-		postgresPassword := os.Getenv("POSTGRES_PASSWORD")
-		connectionString = fmt.Sprintf("host=tasks-postgres-master.tasks.svc.cluster.local port=5432 user=app-user dbname=tasks password=%s sslmode=disable", postgresPassword)
-	}
-	util.InitPostgres(connectionString)
+	util.InitPostgres()
+	InitPrometheus()
+	mux := InitAppServer()
 
-	// gin metrics
-	m := ginmetrics.GetMonitor()
-	m.SetMetricPath("/metrics")
-	m.SetSlowTime(10)
-	m.SetDuration([]float64{0.1, 0.3, 1.2, 5, 10})
-	m.Use(r)
-
-	r.GET("/health", health)
-
-	r.Static("assets", "./assets")
-	v1 := r.Group("/api/v1")
-	tasks.TasksRegister(v1)
-
-	if err := r.Run(); err != nil {
-		util.Log.Fatal().Msg("main error: " + err.Error())
-	}
+	log.Info().Msg("Server initialized")
+	go http.ListenAndServe(":9000", promhttp.Handler())
+	http.ListenAndServe(":8080", mux)
 }

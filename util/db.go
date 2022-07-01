@@ -6,6 +6,7 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -23,17 +24,22 @@ func getEnv(key, fallback string) string {
 }
 
 // creates a connection to postgres database and migrates any new models
-func InitPostgres(connectionString string) {
+func InitPostgres() {
 
-	fmt.Println("int postgres connectionString: ", connectionString)
+	connectionString := os.Getenv("POSTGRES_CONNECTION")
+	if connectionString == "" {
+		postgresPassword := os.Getenv("POSTGRES_PASSWORD")
+		connectionString = fmt.Sprintf("host=tasks-postgres-master.tasks.svc.cluster.local port=5432 user=app-user dbname=tasks password=%s sslmode=disable", postgresPassword)
+	}
+
 	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	Log.Info().Msg("Database connected")
+	log.Info().Msg("Database connected")
 
 	if err := db.AutoMigrate(&models.Task{}); err != nil {
-		Log.Info().Msg(err.Error())
+		log.Info().Msg(err.Error())
 	}
 
 	// set connection limits
@@ -60,12 +66,12 @@ func InitTestDB() *gorm.DB {
 func DBFree() {
 	sqlDB, err := db.DB()
 	if err != nil {
-		Log.Info().Msg("Error getting DB")
+		log.Info().Msg("Error getting DB")
 		panic(err)
 	}
 	err = sqlDB.Close()
 	if err != nil {
-		Log.Info().Msg("Error closing DB")
+		log.Info().Msg("Error closing DB")
 		panic(err)
 	}
 }
