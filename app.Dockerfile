@@ -19,5 +19,6 @@ FROM scratch
 # Copy our static executable.
 COPY --from=builder /app /app
 EXPOSE 8080
+EXPOSE 9000
 # Run the hello binary.
 ENTRYPOINT ["/app"]
