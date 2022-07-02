@@ -1,4 +1,4 @@
-package main
+package canary
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func runCanary(serverDomain string) {
+func RunCanary(serverDomain string) {
 
 	// create
 	request, err := http.NewRequest("POST",
@@ -152,7 +152,7 @@ func main() {
 
 	var serverDomain = "https://tasks.dev.leetcyber.com"
 
-	runCanary(serverDomain)
+	RunCanary(serverDomain)
 	log.Info().Msg("Canary finished successfully..")
 
 }
