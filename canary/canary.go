@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"leet/util"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -54,7 +55,8 @@ func main() {
 	log.Logger = log.With().Caller().Logger()
 	log.Info().Msg("Initializing canary..")
 
-	var serverDomain = "https://tasks.dev.leetcyber.com"
+	envName := os.Getenv("ENV_NAME")
+	var serverDomain = "https://tasks." + envName + ".leetcyber.com"
 
 	// start prometheus metrics server
 	prometheus.Register(canarySuccess)
