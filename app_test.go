@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"leet/canary"
 	"leet/models"
 	"leet/util"
 
@@ -76,6 +75,6 @@ func TestTaskRequests(t *testing.T) {
 	go http.ListenAndServe(":8080", mux)
 
 	serverDomain := "http://localhost:8080"
-	canary.RunCanary(serverDomain)
+	util.RunCanary(serverDomain)
 	asserts.Equal(true, true)
 }
