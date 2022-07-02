@@ -21,4 +21,4 @@ FROM scratch
 COPY --from=builder /canary /canary
 EXPOSE 9000
 # Run the hello binary.
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/canary"]
