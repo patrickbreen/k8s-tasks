@@ -15,8 +15,9 @@ WORKDIR /build/canary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /canary
 ############################
 # STEP 2 build a small image
+# I use alpine instead of scratch, because I need the basic OS TLS CA's
 ############################
-FROM scratch
+FROM alpine:3.16.0
 # Copy our static executable.
 COPY --from=builder /canary /canary
 EXPOSE 9000
