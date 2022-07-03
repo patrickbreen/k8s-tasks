@@ -25,7 +25,7 @@ func wrappedCanary(serverDomain string) {
 	}()
 	log.Info().Msg("Running canary.")
 
-	cert, _ := tls.LoadX509KeyPair("client.crt", "client.key")
+	cert, _ := tls.LoadX509KeyPair("certs/client.crt", "certs/client.key")
 
 	client := &http.Client{
 		Transport: &http.Transport{
