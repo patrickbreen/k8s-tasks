@@ -57,6 +57,7 @@ func main() {
 
 	envName := os.Getenv("ENV_NAME")
 	var serverDomain = "https://tasks." + envName + ".leetcyber.com"
+	log.Info().Msg("serverDomain is:" + serverDomain)
 
 	// start prometheus metrics server
 	prometheus.Register(canarySuccess)
