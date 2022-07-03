@@ -13,18 +13,33 @@ psql -h localhost -p 5432 -U app-user -d tasks
 # install dependencies:
 go get .
 
-# build
+# build and run app
 go build
+./leet
 
-# build canary
+# build  and run canary
 cd canary
 go build
+./canary
 
-# run
-./leet
+# build container images
+docker build -f <docker file> -t <tag> .
 ```
 
-### TODO:
+## TODO:
+
+#### On app repo merge request (also have a script.sh that can do this all locally, and pre-commit):
+1. Build code and Docker image
+2. Test Container (maybe parallel tests)
+3. Use kustomize or helm to generate manifests for each environment with the @hash of the docker image
+   And verify that the generated manifests match the pre-commit generated manifests
+4. Push container
+
+#### On app repo merge:
+1. Make merge request to infra repository to update the image @hash
+
+
+#### Also TODO:
 1. Need to get canary working (it doesn't like the self-signed certs)
 2. Integration tests just set up a local server, and call the canary client on it, and verify no panics
 3. Canary runs every 30s and exports prometheus metrics on port 9000

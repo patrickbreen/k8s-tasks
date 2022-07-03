@@ -21,13 +21,13 @@ var totalRequests = prometheus.NewCounterVec(
 		Name: "my_http_requests_total",
 		Help: "Counter of requests.",
 	},
-	[]string{"path", "status_code"},
+	[]string{"path", "method"},
 )
 
 var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
 	Name: "my_http_response_time_seconds",
 	Help: "Duration of HTTP requests.",
-}, []string{"path", "status_code"})
+}, []string{"path", "method"})
 
 var inFlightRequests = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
@@ -62,9 +62,9 @@ func (m *MyWrappedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	wrw := NewWrappedResponseWriter(w)
 	m.Handler.ServeHTTP(wrw, r)
 	status_code := fmt.Sprintf("%d", wrw.StatusCode)
-	totalRequests.WithLabelValues(r.URL.Path, status_code).Add(1)
+	totalRequests.WithLabelValues(r.URL.Path, r.Method).Add(1)
 	response_time := time.Since(start)
-	httpDuration.WithLabelValues(r.URL.Path, status_code).Observe(response_time.Seconds())
+	httpDuration.WithLabelValues(r.URL.Path, r.Method).Observe(response_time.Seconds())
 	inFlightRequests.WithLabelValues(r.URL.Path).Dec()
 
 	// TODO, add any panic stack traces with line numbers
