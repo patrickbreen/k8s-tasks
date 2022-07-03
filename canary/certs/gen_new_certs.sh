@@ -14,3 +14,7 @@ openssl x509 -req -days 365 -set_serial 01 \
 
 # upload ca as secret
 # kubectl create secret generic ca-cert --from-file=ca.crt=ca.crt -n tasks
+
+# upload client cert and key as secret (will be mounted as files into the canary pods)
+# kubectl create secret generic canary-certs --from-file=client.crt=client.crt --from-file=client.key=client.key -n tasks
+
