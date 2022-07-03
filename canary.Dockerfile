@@ -20,6 +20,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /canary
 FROM alpine:3.16.0
 # Copy our static executable.
 COPY --from=builder /canary /canary
+COPY canary/certs/client.crt /client.crt
+COPY canary/certs/client.key /client.key
 EXPOSE 9000
 # Run the hello binary.
 ENTRYPOINT ["/canary"]

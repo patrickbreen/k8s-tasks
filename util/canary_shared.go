@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func RunCanary(serverDomain string) {
+func RunCanary(serverDomain string, c *http.Client) {
 
 	// create
 	request, err := http.NewRequest("POST",
@@ -18,7 +18,6 @@ func RunCanary(serverDomain string) {
 	if err != nil {
 		panic(err)
 	}
-	c := &http.Client{}
 	response, err := c.Do(request)
 	if err != nil {
 		panic(err)

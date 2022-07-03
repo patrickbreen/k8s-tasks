@@ -75,6 +75,7 @@ func TestTaskRequests(t *testing.T) {
 	go http.ListenAndServe(":8080", mux)
 
 	serverDomain := "http://localhost:8080"
-	util.RunCanary(serverDomain)
+	c := &http.Client{}
+	util.RunCanary(serverDomain, c)
 	asserts.Equal(true, true)
 }

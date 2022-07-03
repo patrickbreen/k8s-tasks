@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"leet/util"
 	"net/http"
@@ -23,7 +24,17 @@ func wrappedCanary(serverDomain string) {
 		}
 	}()
 	log.Info().Msg("Running canary.")
-	util.RunCanary(serverDomain)
+
+	cert, _ := tls.LoadX509KeyPair("client.crt", "client.key")
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				Certificates: []tls.Certificate{cert},
+			},
+		},
+	}
+	util.RunCanary(serverDomain, client)
 	log.Info().Msg("Ran canary.")
 	// increment prometheus canarySuccess counter
 	canarySuccess.Add(1)
