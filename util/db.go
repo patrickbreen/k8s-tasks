@@ -29,7 +29,7 @@ func InitPostgres() {
 	connectionString := os.Getenv("POSTGRES_CONNECTION")
 	if connectionString == "" {
 		postgresPassword := os.Getenv("POSTGRES_PASSWORD")
-		connectionString = fmt.Sprintf("host=tasks-postgres-master.tasks.svc.cluster.local port=5432 user=app-user dbname=tasks password=%s sslmode=disable", postgresPassword)
+		connectionString = fmt.Sprintf("host=tasks-postgres-master.tasks.svc.cluster.local port=5432 user=owner dbname=app password=%s sslmode=disable", postgresPassword)
 	}
 
 	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
