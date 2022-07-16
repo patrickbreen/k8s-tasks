@@ -44,8 +44,8 @@ func InitPostgres() {
 
 	// set connection limits
 	if dbObj, err := db.DB(); err == nil {
-		dbObj.SetMaxIdleConns(10)
-		dbObj.SetMaxOpenConns(100)
+		dbObj.SetMaxIdleConns(5)
+		dbObj.SetMaxOpenConns(20)
 	}
 
 }
@@ -57,7 +57,7 @@ func InitTestDB() *gorm.DB {
 		panic(err)
 	}
 	if dbObj, err := db.DB(); err == nil {
-		dbObj.SetMaxIdleConns(10)
+		dbObj.SetMaxIdleConns(5)
 		//dbObj.LogMode(true)
 	}
 	return db
