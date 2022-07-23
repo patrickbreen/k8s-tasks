@@ -67,7 +67,6 @@ func main() {
 			return
 		}
 		setCallbackCookie(w, r, "state", state)
-
 		http.Redirect(w, r, config.AuthCodeURL(state), http.StatusFound)
 	})
 
