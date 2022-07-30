@@ -28,7 +28,7 @@ func verify(rawIDToken string) {
 	var claims struct {
 		Email         string `json:"email"`
 		Name          string `json:"name"`
-		Id            string `json:"sid"`
+		Id            string `json:"sub"`
 		EmailVerified bool   `json:"email_verified"`
 	}
 	if err := idToken.Claims(&claims); err != nil {
