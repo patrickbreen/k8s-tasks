@@ -33,8 +33,12 @@ func getBearerToken() []byte {
 	if err != nil {
 		panic(err)
 	}
-	// maybe this auto-refreshes the token?
-	config.Client(ctx, oauth2Token)
+	// this refreshes the token
+	tokenSource := config.TokenSource(ctx, oauth2Token)
+	oauth2Token, err = tokenSource.Token()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
