@@ -33,6 +33,8 @@ func getBearerToken() []byte {
 	if err != nil {
 		panic(err)
 	}
+	// maybe this auto-refreshes the token?
+	config.Client(ctx, oauth2Token)
 
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
