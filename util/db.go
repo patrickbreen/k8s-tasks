@@ -32,7 +32,11 @@ func InitPostgres() {
 		connectionString = fmt.Sprintf("host=tasks-postgres-master.tasks.svc.cluster.local port=5432 user=owner dbname=app password=%s sslmode=disable", postgresPassword)
 	}
 
-	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
+	if connectionString == "dev" {
+		db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	} else {
+		db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
+	}
 	if err != nil {
 		panic(err)
 	}

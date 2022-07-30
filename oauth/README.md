@@ -2,6 +2,11 @@ docs for api key example:
 https://keycloak.discourse.group/t/how-to-use-api-keys-with-keycloak/2390/13
 
 ```
+# THIS IS EXTREMELY USEFUL:
+curl -k https://keycloak.dev.leetcyber.com/auth/realms/basic/.well-known/openid-configuration | jq .
+
+
+
 #build:
 go build .
 

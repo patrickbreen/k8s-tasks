@@ -3,73 +3,38 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/coreos/go-oidc"
-	"golang.org/x/oauth2"
 )
 
-func verify(authHeader string) {
-	var oauthToken oauth2.Token
-	json.Unmarshal([]byte(authHeader), &oauthToken)
-	fmt.Printf("token: %v\n", oauthToken)
-	fmt.Println("oauth2 token is valid:", oauthToken.Valid())
-
+func verify(rawIDToken string) {
 	ctx := context.Background()
 	customTransport := http.DefaultTransport.(*http.Transport).Clone()
 	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{Transport: customTransport}
 	http.DefaultClient = client
 	provider, err := oidc.NewProvider(ctx, "https://keycloak.dev.leetcyber.com/auth/realms/basic")
-	if err != nil {
-		log.Fatal(err)
+	clientID := "client-secret"
+	oidcConfig := &oidc.Config{
+		ClientID: clientID,
 	}
-	userInfo, err := provider.UserInfo(ctx, oauth2.StaticTokenSource(&oauthToken))
+	verifier := provider.Verifier(oidcConfig)
+	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
-		log.Fatal(err)
-		return
+		panic(err)
 	}
-	//resp := struct {
-	//	OAuth2Token *oauth2.Token
-	//	UserInfo    *oidc.UserInfo
-	//}{&oauthToken, userInfo}
-	//data, err := json.MarshalIndent(resp, "", "    ")
-	//if err != nil {
-	//	log.Fatal(err)
-	//	return
-	//}
-	fmt.Printf("UserInfo: %v\n", userInfo)
-
-	// keycloak stuff
-	//	ctx := context.Background()
-	//	customTransport := http.DefaultTransport.(*http.Transport).Clone()
-	//	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	//	client := &http.Client{Transport: customTransport}
-	//	http.DefaultClient = client
-	//	provider, err := oidc.NewProvider(ctx, "https://keycloak.dev.leetcyber.com/auth/realms/basic")
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	oidcConfig := &oidc.Config{
-	//		ClientID: "client-secret",
-	//	}
-	//	verifier := provider.Verifier(oidcConfig)
-	//	rawIDToken, ok := oauthToken.Extra("id_token").(string)
-	//	if !ok {
-	//		log.Fatal("No id_token field in oauth2 token.")
-	//		return
-	//	}
-	//	idToken, err := verifier.Verify(ctx, rawIDToken)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//		return
-	//	}
-	//	fmt.Println("idToken:", idToken)
-	//	fmt.Println("OIDC token provided to the server was validated successfully!")
+	var claims struct {
+		Email         string `json:"email"`
+		Name          string `json:"name"`
+		Id            string `json:"sid"`
+		EmailVerified bool   `json:"email_verified"`
+	}
+	if err := idToken.Claims(&claims); err != nil {
+		panic(err)
+	}
+	fmt.Printf("idClaims: %v\n", claims)
 }
 
 func headers(w http.ResponseWriter, req *http.Request) {
@@ -77,7 +42,7 @@ func headers(w http.ResponseWriter, req *http.Request) {
 		for _, h := range headers {
 			fmt.Fprintf(w, "%v: %v\n", name, h)
 
-			if name == "Authorization" {
+			if name == "Id" {
 				verify(h)
 			}
 		}
