@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"net/http"
 	"testing"
 	"time"
@@ -59,6 +60,16 @@ func TestTaskModel(t *testing.T) {
 }
 
 func TestTaskRequests(t *testing.T) {
+	// bad security, but I'm doing this in this toy project to get through the self-signed certs
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+	http.DefaultClient = client
+
 	// get test db - also just sets the global db reference
 	testDB := util.InitTestDB()
 	asserts := assert.New(t)
@@ -75,7 +86,6 @@ func TestTaskRequests(t *testing.T) {
 	go http.ListenAndServe(":8080", mux)
 
 	serverDomain := "http://localhost:8080"
-	c := &http.Client{}
-	util.RunCanary(serverDomain, c)
+	util.RunCanary(serverDomain)
 	asserts.Equal(true, true)
 }

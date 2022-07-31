@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"leet/models"
@@ -20,16 +19,6 @@ var clientSecret = "client-secret"
 
 // hard code all oauth/oidc stuff (for now) and return a valid TokenSource
 func getTokenSource() oauth2.TokenSource {
-	// bad security, but I'm doing this in this toy project to get through the self-signed certs
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-	}
-	http.DefaultClient = client
-
 	ctx := context.Background()
 	if err != nil {
 		log.Fatalln(err)
@@ -81,7 +70,8 @@ func getIDToken() string {
 	return rawIDToken
 }
 
-func RunCanary(serverDomain string, c *http.Client) {
+func RunCanary(serverDomain string) {
+	c := http.DefaultClient
 
 	// create
 	request, err := http.NewRequest("POST",

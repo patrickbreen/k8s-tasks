@@ -25,17 +25,7 @@ func wrappedCanary(serverDomain string) {
 	}()
 	log.Info().Msg("Running canary.")
 
-	cert, _ := tls.LoadX509KeyPair("certs/client.crt", "certs/client.key")
-
-	// TODO: creating a new client on every request is not a good idea. It may lead to resources being held open longer than indented. Only create 1 client.
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				Certificates: []tls.Certificate{cert},
-			},
-		},
-	}
-	util.RunCanary(serverDomain, client)
+	util.RunCanary(serverDomain)
 	log.Info().Msg("Ran canary.")
 	// increment prometheus canarySuccess counter
 	canarySuccess.Add(1)
@@ -67,9 +57,21 @@ func main() {
 	log.Logger = log.With().Caller().Logger()
 	log.Info().Msg("Initializing canary..")
 
+	// bad security, but I'm doing this in this toy project to get through the self-signed certs
+	cert, _ := tls.LoadX509KeyPair("certs/client.crt", "certs/client.key")
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+				Certificates:       []tls.Certificate{cert},
+			},
+		},
+	}
+	http.DefaultClient = client
+
 	envName := os.Getenv("ENV_NAME")
 	var serverDomain = "https://tasks." + envName + ".leetcyber.com"
-	log.Info().Msg("serverDomain is:" + serverDomain)
+	log.Info().Msg("serverDomain is: " + serverDomain)
 
 	// start prometheus metrics server
 	prometheus.Register(canarySuccess)
@@ -80,7 +82,7 @@ func main() {
 	// increment prometheus canaryRuns counter
 	for {
 		wrappedCanary(serverDomain)
-		time.Sleep(30 * time.Second)
+		time.Sleep(60 * time.Second)
 	}
 
 	log.Info().Msg("Canary finished successfully..")
