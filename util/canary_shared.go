@@ -20,7 +20,7 @@ var tokenSource oauth2.TokenSource = nil
 var clientID = "client-secret"
 var clientSecret = "client-secret"
 var keycloakUrlExternal = "https://keycloak.dev.leetcyber.com/auth/realms/basic"
-var keycloakUrlInternal = "https://keycloak.my-keycloak-operator.svc/auth/realms/basic"
+var keycloakUrlInternal = "https://keycloak.my-keycloak-operator.svc:8443/auth/realms/basic"
 
 func keycloakUrl() string {
 	envName := os.Getenv("ENV_NAME")
