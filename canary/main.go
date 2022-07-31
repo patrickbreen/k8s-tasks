@@ -6,6 +6,7 @@ import (
 	"leet/util"
 	"net/http"
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,7 +19,7 @@ func wrappedCanary(serverDomain string) {
 	start := time.Now()
 	defer func() {
 		if err := recover(); err != nil {
-			log.Info().Msg(fmt.Sprintf("panic occurred: %v", err))
+			log.Info().Msg(fmt.Sprintf("panic occurred: %v, stacktrace: %s", err, string(debug.Stack())))
 			// increment prometheus canaryFailure counter
 			canaryFailure.Add(1)
 		}
@@ -82,7 +83,7 @@ func main() {
 	// increment prometheus canaryRuns counter
 	for {
 		wrappedCanary(serverDomain)
-		time.Sleep(60 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 
 	log.Info().Msg("Canary finished successfully..")
