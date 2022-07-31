@@ -1,5 +1,19 @@
 ### How to operate this API
 ```
+#################################################################
+# If you just want to run a dev version and don't want to touch kubernetes for the DB:
+# Note you still need keycloak working (on kubernetes)
+#################################################################
+
+export POSTGRES_CONNECTION=dev
+go build .
+go test .
+./leet
+
+#################################################################
+# Everything below assumes some amount of kubernetes usage:
+#################################################################
+
 # portforward postgres from the cluster to use in localhost dev/testing
 k port-forward -n tasks svc/tasks-postgres-master 5432:5432
 

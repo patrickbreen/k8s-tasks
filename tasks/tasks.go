@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang/gddo/httputil/header"
+	"github.com/rs/zerolog/log"
 )
 
 func myDeserialize(w http.ResponseWriter, req *http.Request) (*json.Decoder, int) {
@@ -25,6 +26,11 @@ func myDeserialize(w http.ResponseWriter, req *http.Request) (*json.Decoder, int
 }
 
 func TasksHandler(w http.ResponseWriter, req *http.Request) {
+	claims, err := util.ValidateAndGetClaims(req)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+	log.Info().Msg(fmt.Sprintf("user claims: %v\n", claims))
 	if req.Method == "GET" {
 		GetTasks(w, req)
 	} else if req.Method == "POST" {

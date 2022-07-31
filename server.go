@@ -55,18 +55,24 @@ type MyWrappedHandler struct {
 	Handler http.Handler
 }
 
-// handle logging, metrics and auth
+// handle logging and metrics
 func (m *MyWrappedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// monitoring
 	start := time.Now()
 	inFlightRequests.WithLabelValues(r.URL.Path).Inc()
 	wrw := NewWrappedResponseWriter(w)
+
+	// call handler
 	m.Handler.ServeHTTP(wrw, r)
+
+	// monitoring
 	status_code := fmt.Sprintf("%d", wrw.StatusCode)
 	totalRequests.WithLabelValues(r.URL.Path, r.Method).Add(1)
 	response_time := time.Since(start)
 	httpDuration.WithLabelValues(r.URL.Path, r.Method).Observe(response_time.Seconds())
 	inFlightRequests.WithLabelValues(r.URL.Path).Dec()
 
+	//logging
 	// TODO, add any panic stack traces with line numbers
 	log.Info().
 		Str("method", r.Method).

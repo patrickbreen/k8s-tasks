@@ -16,7 +16,7 @@ sudo ./oauth
 #test:
 go to "oauth.dev.leetcyber.com" which directs to localhost:80 in /etc/hosts
 
-#get api key: curl -v -k -d "client_id=client-secret" -d "username=patrick" -d "password=star" -d "grant_type=password" -X POST "https://keycloak.dev.leetcyber.com/auth/realms/basic/protocol/openid-connect/token"
+#get api key: curl -v -k -d "client_id=client-secret" -d "username=patrick" -d "password=star" -d "grant_type=password" -d "scope=openid" -X POST "https://keycloak.dev.leetcyber.com/auth/realms/basic/protocol/openid-connect/token"
 ```
 
 TODO:
