@@ -98,7 +98,7 @@ func InitAppServer() *MyWrappedHandler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", health)
 	fileserver := http.FileServer(http.Dir("./assets"))
-	mux.Handle("/assets", fileserver)
+	mux.Handle("/assets/", http.StripPrefix("/assets", fileserver))
 	mux.HandleFunc("/api/v1/tasks/", tasks.TasksHandler)
 	// middleware
 	return NewMyWrappedHandler(mux)
