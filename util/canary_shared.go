@@ -8,30 +8,43 @@ import (
 	"leet/models"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/coreos/go-oidc"
 	"golang.org/x/oauth2"
 )
 
 var tokenSource oauth2.TokenSource = nil
+
+// hard coded creds, good heavens
 var clientID = "client-secret"
 var clientSecret = "client-secret"
+var keycloakUrlExternal = "https://keycloak.dev.leetcyber.com/auth/realms/basic"
+var keycloakUrlInternal = "https://keycloak.my-keycloak-operator.svc/auth/realms/basic"
 
-// hard code all oauth/oidc stuff (for now) and return a valid TokenSource
+func keycloakUrl() string {
+	envName := os.Getenv("ENV_NAME")
+	if envName == "" {
+		return keycloakUrlExternal
+	}
+	return keycloakUrlInternal
+}
+
 func getTokenSource() oauth2.TokenSource {
 	ctx := context.Background()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	provider, err := oidc.NewProvider(ctx, "https://keycloak.dev.leetcyber.com/auth/realms/basic")
+	provider, err := oidc.NewProvider(ctx, keycloakUrl())
 	config := oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://oauth.dev.leetcyber.com/callbacks/redirect",
+		RedirectURL:  "NOT/USED",
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
+	// hard coded creds, good heavens
 	oauth2Token, err := config.PasswordCredentialsToken(ctx, "patrick", "star")
 	if err != nil {
 		log.Fatalln(err)
@@ -39,7 +52,7 @@ func getTokenSource() oauth2.TokenSource {
 	return config.TokenSource(ctx, oauth2Token)
 }
 
-// return a valid IDToken as a string
+// return a validated IDToken as a string, I techincally don't need to validate it on the client
 func getIDToken() string {
 	// init
 	if tokenSource == nil {
@@ -60,7 +73,7 @@ func getIDToken() string {
 		ClientID: clientID,
 	}
 	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, "https://keycloak.dev.leetcyber.com/auth/realms/basic")
+	provider, err := oidc.NewProvider(ctx, keycloakUrl())
 	verifier := provider.Verifier(oidcConfig)
 	_, err = verifier.Verify(ctx, rawIDToken)
 	if err != nil {

@@ -2,7 +2,6 @@ package util
 
 import (
 	"context"
-	"crypto/tls"
 	"net/http"
 
 	"github.com/coreos/go-oidc"
@@ -29,13 +28,7 @@ func getRawIDToken(req *http.Request) string {
 func ValidateAndGetClaims(req *http.Request) (UserClaims, error) {
 	rawIDToken := getRawIDToken(req)
 	ctx := context.Background()
-	// this is bad security for this toy project, but TODO, deal with self signed certs
-	customTransport := http.DefaultTransport.(*http.Transport).Clone()
-	customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	client := &http.Client{Transport: customTransport}
-	http.DefaultClient = client
-	provider, err := oidc.NewProvider(ctx, "https://keycloak.dev.leetcyber.com/auth/realms/basic")
-	clientID := "client-secret"
+	provider, err := oidc.NewProvider(ctx, keycloakUrl())
 	oidcConfig := &oidc.Config{
 		ClientID: clientID,
 	}
