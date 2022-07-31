@@ -7,7 +7,7 @@
 
 export POSTGRES_CONNECTION=dev
 go build .
-go test .
+go test . -v
 ./leet
 
 #################################################################
