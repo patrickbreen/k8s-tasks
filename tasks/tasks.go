@@ -32,22 +32,22 @@ func TasksHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	log.Info().Msg(fmt.Sprintf("user claims: %v\n", claims))
 	if req.Method == "GET" {
-		GetTasks(w, req)
+		GetTasks(w, req, claims)
 	} else if req.Method == "POST" {
-		CreateTask(w, req)
+		CreateTask(w, req, claims)
 	} else if req.Method == "PUT" {
-		UpdateTask(w, req)
+		UpdateTask(w, req, claims)
 	} else if req.Method == "DELETE" {
-		DeleteTask(w, req)
+		DeleteTask(w, req, claims)
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
 
-func GetTasks(w http.ResponseWriter, req *http.Request) {
+func GetTasks(w http.ResponseWriter, req *http.Request, claims util.UserClaims) {
 	var tasks []models.Task
 	db := util.GetDB()
-	db.Find(&tasks)
+	db.Where("user_id = ?", claims.Id).Find(&tasks) // TODO test
 	b, err := json.Marshal(tasks)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -56,7 +56,7 @@ func GetTasks(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, string(b))
 }
 
-func CreateTask(w http.ResponseWriter, req *http.Request) {
+func CreateTask(w http.ResponseWriter, req *http.Request, claims util.UserClaims) {
 	var task models.Task
 	var db = util.GetDB()
 
@@ -71,7 +71,8 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// do thing
+	task.UserId = claims.Id
+	// create
 	db.Create(&task)
 	b, err := json.Marshal(task)
 	if err != nil {
@@ -81,7 +82,7 @@ func CreateTask(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, string(b))
 }
 
-func UpdateTask(w http.ResponseWriter, req *http.Request) {
+func UpdateTask(w http.ResponseWriter, req *http.Request, claims util.UserClaims) {
 	var task models.Task
 	db := util.GetDB()
 
@@ -92,7 +93,7 @@ func UpdateTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	id := ids[0]
-	if err := db.Where("id = ?", id).First(&task).Error; err != nil {
+	if err := db.Where("id = ? AND user_id = ?", id, claims.Id).First(&task).Error; err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -110,6 +111,7 @@ func UpdateTask(w http.ResponseWriter, req *http.Request) {
 
 	// do thing
 	task.UpdatedAt = time.Now()
+	task.UserId = claims.Id
 	db.Save(&task)
 	// write back new object as json 200
 	b, err := json.Marshal(task)
@@ -120,7 +122,7 @@ func UpdateTask(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, string(b))
 }
 
-func DeleteTask(w http.ResponseWriter, req *http.Request) {
+func DeleteTask(w http.ResponseWriter, req *http.Request, claims util.UserClaims) {
 	var task models.Task
 	db := util.GetDB()
 
@@ -131,7 +133,7 @@ func DeleteTask(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	id := ids[0]
-	if err := db.Where("id = ?", id).First(&task).Error; err != nil {
+	if err := db.Where("id = ? AND user_id = ?", id, claims.Id).First(&task).Error; err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
